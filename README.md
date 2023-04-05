@@ -10,7 +10,7 @@
 
 ## /rest/activities
 
-The `/rest/activities` endpoint is used to get the list of activities.
+The `/rest/activities` endpoint is used to manage the activities.
 
 ### GETS
 
