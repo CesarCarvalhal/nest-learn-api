@@ -32,7 +32,6 @@ The `/rest/activities` endpoint is used to get the list of activities.
             "content": "Content of the activity"
         }
         ```
-        ```
 
 ### PUTS
 
