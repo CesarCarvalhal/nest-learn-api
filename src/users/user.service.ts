@@ -102,4 +102,39 @@ export class UserService {
 
     return { id: user._id , token }
   }
+
+
+
+  /////////////////////////// POSTS
+  // update username
+  async updateUser(auth_token: string, newUsername: string): Promise<{ message: string }> {
+    // Verificar y decodificar el token
+    try {
+      const decoded = jwt.verify(auth_token, process.env.SECRET_KEY);
+
+      // Buscar el usuario por su ID
+      const user = await this.userModel.findById(decoded["userId"]).exec();
+      if (!decoded) {
+        throw new NotFoundException('El usuario no existe');
+      }
+
+      // Verificar si el nuevo nombre de usuario ya existe
+      const existingUser = await this.userModel.findOne({ username: newUsername }).exec();
+      if (existingUser) {
+        throw new ConflictException('El nombre de usuario ya existe');
+      }
+
+      // Actualizar el nombre de usuario
+      user.username = newUsername;
+      await user.save();
+
+      return { message: 'Nombre de usuario actualizado correctamente' };
+    } catch (error) {
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new UnauthorizedException('Token inválido');
+      } else {
+        throw error;
+      }
+    }
+  }
 }

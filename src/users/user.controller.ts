@@ -1,5 +1,5 @@
 // ./users/user.controller.ts
-import { Controller, Get, Post, Body, UseGuards, Param, Res, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, UseGuards, Param, Res, Req, NotFoundException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.schema';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -8,7 +8,10 @@ import { Response, Request } from 'express';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
   /////////////////////////// GETS
 
   // all users
@@ -97,5 +100,18 @@ export class UserController {
     res.cookie('Authorization', token, { httpOnly: true, sameSite: 'strict' });
     // return res.status(201).json({ message: 'Login successfully' });
     return res.status(200).json({ token: token});
+  }
+
+
+
+  /////////////////////////// PUTS
+
+  // Update username
+  @UseGuards(JwtAuthGuard)
+  @Put('update')
+  async updateUser(@Req() req, @Body('username') username: string) {
+    const auth_token = this.extractTokenFromHeader(req);
+    const res = await this.userService.updateUser(auth_token, username);
+    return res;
   }
 }
