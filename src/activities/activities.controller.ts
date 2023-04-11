@@ -1,7 +1,7 @@
 // activities.controller.ts
 import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
-import { Activity } from 'src/schemas/activities.schema';
-import { ActivitiesService } from 'src/services/activities.service';
+import { Activity } from './activities.schema';
+import { ActivitiesService } from './activities.service';
 
 @Controller('rest/activities')
 export class ActivitiesController {

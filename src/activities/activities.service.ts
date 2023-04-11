@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Activity, ActivityDocument } from 'src/schemas/activities.schema';
+import { Activity, ActivityDocument } from './activities.schema';
 
 @Injectable()
 export class ActivitiesService {

@@ -8,18 +8,15 @@ config();
 // ROUTES
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
-import { ActivitiesController } from './controllers/activities.controller';
-import { ActivitiesService } from './services/activities.service';
-import { Activity, ActivitySchema } from './schemas/activities.schema';
+import { ActivitiesModule } from './activities/activities.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME),
-    MongooseModule.forFeature([{ name: Activity.name, schema: ActivitySchema }]),
+    ActivitiesModule, 
   ],
-  controllers: [AppController, ActivitiesController],
-  providers: [AppService, ActivitiesService],
-
+  controllers: [AppController],
+  providers: [AppService],
 })
+
 export class AppModule {}
