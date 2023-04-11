@@ -23,6 +23,7 @@ export class UserController {
   }
 
   // user by id
+  @UseGuards(JwtAuthGuard)
   @Get('id/:id')
   async getUserById(@Param('id') id: string): Promise<User> {
     const user = await this.userService.getUserById(id);
@@ -32,7 +33,8 @@ export class UserController {
     return user;
   }
 
-  // user by username
+  // userS by username
+  @UseGuards(JwtAuthGuard)
   @Get('username/:username')
   async getUsersByUsername(@Param('username') username: string): Promise<User[]> {
     const users = await this.userService.getUsersByUsername(username);
@@ -43,6 +45,7 @@ export class UserController {
   }
 
   // user by email
+  @UseGuards(JwtAuthGuard)
   @Get('email/:email')
   async getUserByEmail(@Param('email') email: string): Promise<User> {
     const user = await this.userService.getUserByEmail(email);
@@ -53,6 +56,7 @@ export class UserController {
   }
 
   // userS by role
+  @UseGuards(JwtAuthGuard)
   @Get('role/:role')
   async getUsersByRole(@Param('role') role: string): Promise<User[]> {
     const users = await this.userService.getUsersByRole(role);
@@ -91,6 +95,7 @@ export class UserController {
     const { id, token } = await this.userService.login(username, password);
     res.cookie('userId', id.toString(), { httpOnly: true, sameSite: 'strict' });
     res.cookie('Authorization', token, { httpOnly: true, sameSite: 'strict' });
-    return res.status(201).json({ message: 'Login successfully' });
+    // return res.status(201).json({ message: 'Login successfully' });
+    return res.status(200).json({ token: token});
   }
 }

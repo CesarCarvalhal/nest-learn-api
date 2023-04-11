@@ -5,22 +5,19 @@ import { Document } from 'mongoose';
 @Schema()
 export class User {
 
-  @Prop({ unique: true })
+  @Prop({ unique: true, required: true })
   username: string;
 
-  @Prop({ unique: true })
+  @Prop({ unique: true, required: true, match: /.+\@.+\..+/ })
   email: string;
 
-  @Prop()
+  @Prop({ required: true, minlength: 8, maxlength: 32 })
   password: string;
 
-  @Prop()
+  @Prop({ required: true })
   role: string;
 
-  @Prop()
-  auth_token: string;
-
-  @Prop()
+  @Prop({ required: true })
   created_at: string;
 }
 
