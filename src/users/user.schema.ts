@@ -11,7 +11,7 @@ export class User {
   @Prop({ unique: true, required: true, match: /.+\@.+\..+/ })
   email: string;
 
-  @Prop({ required: true, minlength: 8, maxlength: 32 })
+  @Prop({ required: true, minlength: 8 })
   password: string;
 
   @Prop({ required: true })

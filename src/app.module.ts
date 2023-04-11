@@ -2,6 +2,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+// CONFIG
+import { config } from 'dotenv';
+config()
+
 // ROUTES
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
