@@ -1,5 +1,5 @@
 // activities.controller.ts
-import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, Req } from '@nestjs/common';
 import { Activity } from './activities.schema';
 import { ActivitiesService } from './activities.service';
 
@@ -13,7 +13,9 @@ export class ActivitiesController {
   }
 
   @Post()
-  async createActivity(@Body() activityData: Partial<Activity>): Promise<Activity> {
+  async createActivity(@Body() activityData: Partial<Activity>, @Req() request): Promise<Activity> {
+    const userId = request.user.id; 
+    activityData.userId = userId; 
     return this.activitiesService.createActivity(activityData);
   }
 

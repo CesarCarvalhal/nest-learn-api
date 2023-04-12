@@ -19,8 +19,10 @@ export class ActivitiesService {
   }
 
   async createActivity(activityData: Partial<Activity>): Promise<Activity> {
+    const userId = activityData.userId; 
     const activity = new this.activityModel(activityData);
     activity.created_at = new Date().getTime().toString();
+    activity.userId = userId; 
     const savedActivity = await activity.save();
     return savedActivity;
   }
