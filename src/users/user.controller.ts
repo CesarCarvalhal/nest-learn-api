@@ -2,8 +2,8 @@
 import { Controller, Get, Post, Put, Body, UseGuards, Param, Res, Req, NotFoundException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.schema';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Response, Request } from 'express';
+import { Auth0Guard } from '../auth/auth0.guard';
 
 @Controller('users')
 export class UserController {
@@ -15,8 +15,8 @@ export class UserController {
   /////////////////////////// GETS
 
   // all users
-  @UseGuards(JwtAuthGuard)
   @Get()
+  @UseGuards(Auth0Guard)
   async getAllUsers(): Promise<User[]> {
     const users = await this.userService.getAllUsers();
     if (!users || users.length === 0) {
@@ -26,7 +26,6 @@ export class UserController {
   }
 
   // user by id
-  @UseGuards(JwtAuthGuard)
   @Get('id/:id')
   async getUserById(@Param('id') id: string): Promise<User> {
     const user = await this.userService.getUserById(id);
@@ -37,7 +36,6 @@ export class UserController {
   }
 
   // userS by username
-  @UseGuards(JwtAuthGuard)
   @Get('username/:username')
   async getUsersByUsername(@Param('username') username: string): Promise<User[]> {
     const users = await this.userService.getUsersByUsername(username);
@@ -48,7 +46,6 @@ export class UserController {
   }
 
   // user by email
-  @UseGuards(JwtAuthGuard)
   @Get('email/:email')
   async getUserByEmail(@Param('email') email: string): Promise<User> {
     const user = await this.userService.getUserByEmail(email);
@@ -59,7 +56,6 @@ export class UserController {
   }
 
   // userS by role
-  @UseGuards(JwtAuthGuard)
   @Get('role/:role')
   async getUsersByRole(@Param('role') role: string): Promise<User[]> {
     const users = await this.userService.getUsersByRole(role);
@@ -107,7 +103,6 @@ export class UserController {
   /////////////////////////// PUTS
 
   // Update username
-  @UseGuards(JwtAuthGuard)
   @Put('update')
   async updateUser(@Req() req, @Body('username') username: string) {
     const auth_token = this.extractTokenFromHeader(req);
