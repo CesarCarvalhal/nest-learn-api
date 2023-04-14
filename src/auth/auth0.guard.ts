@@ -9,7 +9,7 @@ export class Auth0Guard implements CanActivate {
 
   constructor(private readonly reflector: Reflector) {
     this.checkJwt = auth({
-      audience: 'nest-learn-auth0-api',
+      audience: 'https://fct-netex.eu.auth0.com/api/v2/',
       issuerBaseURL: 'https://fct-netex.eu.auth0.com/',
     });
   }

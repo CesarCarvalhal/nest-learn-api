@@ -7,12 +7,10 @@ import { config } from 'dotenv';
 config()
 
 // ROUTES
-import { UserModule } from './users/user.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME),
-    UserModule
+    MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME)
   ]
 
 })
