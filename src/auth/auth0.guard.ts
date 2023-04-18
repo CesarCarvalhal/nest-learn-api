@@ -2,6 +2,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { auth } from 'express-oauth2-jwt-bearer';
+import axios from 'axios';
 
 @Injectable()
 export class Auth0Guard implements CanActivate {
@@ -27,5 +28,27 @@ export class Auth0Guard implements CanActivate {
 
     await this.checkJwt(request, response, done);
     return true;
+  }
+}
+
+// Return token with full access to auth0 api
+export async function auth0Access() {
+  const data = {
+      "client_id": process.env.CLIENT_ID,
+      "client_secret": process.env.CLIENT_SECRET,
+      "audience": process.env.AUDIENCE,
+      "grant_type": process.env.GRANT_TYPE
+  };
+  const config = {
+      headers: {
+          'Content-Type': 'application/json'
+      }
+  };
+  try {
+      const response = await axios.post('https://fct-netex.eu.auth0.com/oauth/token', data, config);
+      return response.data.access_token;
+  } catch (error) {
+      console.log(error);
+      throw new Error('Error');
   }
 }
