@@ -19,7 +19,7 @@ export class Activity {
   @Prop({ required: true })
   created_at: string;
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
+  @Prop({ required: true })
   userId: string;
 }
 

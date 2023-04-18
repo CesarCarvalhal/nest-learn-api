@@ -10,21 +10,20 @@ export class ActivitiesService {
     @InjectModel(Activity.name) private activityModel: Model<ActivityDocument>,
   ) {}
 
+  async createActivity(activityData: Partial<Activity>, userId: string): Promise<Activity> {
+    const activity = new this.activityModel(activityData);
+    activity.created_at = new Date().getTime().toString();
+    activity.userId = userId;
+    const savedActivity = await activity.save();
+    return savedActivity;
+  }
+
   async getAllActivities(): Promise<Activity[]> {
     return this.activityModel.find().exec();
   }
 
   async getActivityById(id: string): Promise<Activity> {
     return this.activityModel.findById(id).exec();
-  }
-
-  async createActivity(activityData: Partial<Activity>): Promise<Activity> {
-    const userId = activityData.userId; 
-    const activity = new this.activityModel(activityData);
-    activity.created_at = new Date().getTime().toString();
-    activity.userId = userId; 
-    const savedActivity = await activity.save();
-    return savedActivity;
   }
 
   async updateActivity(
