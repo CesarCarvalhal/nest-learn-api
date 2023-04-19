@@ -1,0 +1,483 @@
+openapi: 3.0.1
+info:
+  title: Nest Learn API
+  description: Descripcion
+  version: 1.0.0
+paths:
+  /users/roles:
+    get:
+      tags:
+        - Users
+      summary: Obtener roles del usuario autenticado
+      description: >-
+        Este endpoint permite obtener los roles asignados al usuario
+        autenticado.
+      responses:
+        '200':
+          description: Roles obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: rol_1
+                        name:
+                          type: string
+                          example: Administrador
+                        description:
+                          type: string
+                          example: Rol que otorga permisos de administrador
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+  /users/update-nickname:
+    patch:
+      tags:
+        - Users
+      summary: Actualizar el nombre de usuario (nickname)
+      description: Actualiza el nombre de usuario (nickname) para el usuario autenticado.
+      requestBody:
+        description: El nuevo nombre de usuario (nickname)
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nickname
+              properties:
+                nickname:
+                  type: string
+                  example: NewNickname
+      responses:
+        '200':
+          description: Nombre de usuario actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Nickname updated
+                  data:
+                    type: object
+                    properties:
+                      created_at:
+                        type: string
+                        example: '2023-04-11T10:33:48.992Z'
+                      email:
+                        type: string
+                        example: adrian.borrageiros@netexlearning.com
+                      email_verified:
+                        type: boolean
+                        example: true
+                      identities:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            connection:
+                              type: string
+                              example: Username-Password-Authentication
+                            provider:
+                              type: string
+                              example: auth0
+                            user_id:
+                              type: string
+                              example: 6435378cac665a034ba943a4
+                            isSocial:
+                              type: boolean
+                              example: false
+                      name:
+                        type: string
+                        example: adrian.borrageiros@netexlearning.com
+                      nickname:
+                        type: string
+                        example: borrageiros
+                      picture:
+                        type: string
+                        example: >-
+                          https://s.gravatar.com/avatar/da8cab5487615ee17bcd03407750dbb7?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fad.png
+                      updated_at:
+                        type: string
+                        example: '2023-04-18T13:31:50.688Z'
+                      user_id:
+                        type: string
+                        example: auth0|6435378cac665a034ba943a4
+                      last_password_reset:
+                        type: string
+                        example: '2023-04-12T08:57:14.275Z'
+                      last_ip:
+                        type: string
+                        example: 81.43.119.160
+                      last_login:
+                        type: string
+                        example: '2023-04-18T13:29:59.036Z'
+                      logins_count:
+                        type: integer
+                        example: 41
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error en la solicitud
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+        '500':
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error interno del servidor
+  /rest/activities:
+    post:
+      tags:
+        - Activities
+      summary: Crear una nueva actividad
+      description: Crea una nueva actividad en el sistema.
+      requestBody:
+        description: Datos de la actividad
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Título de la actividad
+                description:
+                  type: string
+                  example: Descripción de la actividad
+                type:
+                  type: string
+                  example: Tipo de actividad
+                content:
+                  type: string
+                  example: Contenido de la actividad
+              required:
+                - title
+                - description
+                - type
+                - content
+      responses:
+        '201':
+          description: Actividad creada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '400':
+          description: Solicitud incorrecta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error en la solicitud
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+        '500':
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error interno del servidor
+    get:
+      tags:
+        - Activities
+      summary: Obtener todas las actividades
+      responses:
+        '200':
+          description: Actividades obtenidas correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+
+  /rest/activities/{id}:
+    put:
+      tags:
+        - Activities
+      summary: Actualizar una actividad por ID
+      parameters:
+        - name: id
+          in: path
+          description: ID de la actividad
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Datos de la actividad
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '200':
+          description: Actividad actualizada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+        '404':
+          description: Actividad no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Actividad no encontrada
+    delete:
+      tags:
+        - Activities
+      summary: Eliminar una actividad por ID
+      parameters:
+        - name: id
+          in: path
+          description: ID de la actividad
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Actividad eliminada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+        '404':
+          description: Actividad no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Actividad no encontrada
+
+  /rest/activities/user/{id}:
+    get:
+      tags:
+        - Activities
+      summary: Obtener todas las actividades vistas por el usuario
+      parameters:
+        - name: id
+          in: path
+          description: ID del usuario
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Actividades obtenidas correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+  /rest/activities/{id}/view:
+    post:
+      tags:
+        - Activities
+      summary: Marcar actividad como vista por el usuario
+      parameters:
+        - name: id
+          in: path
+          description: ID de la actividad
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Actividad marcada como vista correctamente
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+        '404':
+          description: Actividad no encontrada o token no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Actividad no encontrada
+
+  /rest/activities/{id}/viewers:
+    get:
+      tags:
+        - Activities
+      summary: Obtener los espectadores de una actividad por ID
+      parameters:
+        - name: id
+          in: path
+          description: ID de la actividad
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Espectadores de la actividad obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: auth0|61234a6b712c1234567890ab
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Acceso no autorizado
+        '404':
+          description: Actividad no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Actividad no encontrada
+
+components:
+  schemas:
+    Activity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '49fcdcc5-84dc-44b6-a466-17ee87b103f2'
+        title:
+          type: string
+          example: Actividad de matemáticas
+        description:
+          type: string
+          example: Esta actividad permite practicar las operaciones básicas de matemáticas.
+        createdBy:
+          type: string
+          example: 'auth0|abcdefg123456'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-04-19T14:27:25.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2023-04-19T14:27:25.000Z'
+      required:
+        - id
+        - title
+        - description
+        - createdBy
+        - createdAt
+        - updatedAt
