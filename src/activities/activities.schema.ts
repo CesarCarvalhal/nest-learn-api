@@ -20,7 +20,10 @@ export class Activity {
   created_at: string;
 
   @Prop({ required: true })
-  userId: string;
+  created_by: string;
+
+  @Prop({ required: true, type: [String] })
+  viewed_by: string[];
 }
 
 export type ActivityDocument = Activity & Document;

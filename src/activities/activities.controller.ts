@@ -83,4 +83,21 @@ export class ActivitiesController {
     await this.verifyUserIsAdmin(user.sub);
     return this.activitiesService.deleteActivity(id);
   }
+
+  @Post(':id/view')
+  async viewActivity(@Param('id') id: string, @Req() request: Request): Promise<void> {
+  const token = this.extractTokenFromHeader(request);
+  if (!token) {
+    throw new NotFoundException('Token no encontrado');
+  }
+  const user = await this.getUserFromToken(token);
+  return this.activitiesService.viewActivity(id, user.sub);
+  
+}
+
+  @Get(':id/viewers')
+  async getActivityViewers(@Param('id') id: string): Promise<string[]> {
+  const activity = await this.activitiesService.getActivityById(id);
+  return activity.viewed_by;
+}
 }
