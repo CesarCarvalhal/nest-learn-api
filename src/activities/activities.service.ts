@@ -40,4 +40,9 @@ export class ActivitiesService {
     const activity = await this.activityModel.findByIdAndDelete(id).exec();
     return activity;
   }
+
+  async getViwedActivitiesByUser(userId: string): Promise<Activity[]> {
+    const activities = await this.activityModel.find({ viewed_by: userId }).exec();
+    return activities;
+  }
 }

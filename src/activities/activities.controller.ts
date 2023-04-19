@@ -83,4 +83,11 @@ export class ActivitiesController {
     await this.verifyUserIsAdmin(user.sub);
     return this.activitiesService.deleteActivity(id);
   }
+
+  // Get all the viwed activities for the user id
+  @Get("user/:id")
+  async getAllViwedActivities(@Param('id') id: string): Promise<Activity[]> {
+    const activities = await this.activitiesService.getViwedActivitiesByUser(id);
+    return activities;
+  }
 }
