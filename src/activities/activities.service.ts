@@ -52,4 +52,8 @@ export class ActivitiesService {
       await activity.save();
     }
   }
+  async getViwedActivitiesByUser(userId: string): Promise<Activity[]> {
+    const activities = await this.activityModel.find({ viewed_by: userId }).exec();
+    return activities;
+  }
 }

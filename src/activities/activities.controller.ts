@@ -100,4 +100,12 @@ export class ActivitiesController {
   const activity = await this.activitiesService.getActivityById(id);
   return activity.viewed_by;
 }
+
+  // Get all the viwed activities for the user id
+  @Get("user/:id")
+  async getAllViwedActivities(@Param('id') id: string): Promise<Activity[]> {
+    const activities = await this.activitiesService.getViwedActivitiesByUser(id);
+    return activities;
+  }
+
 }
