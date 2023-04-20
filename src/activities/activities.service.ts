@@ -9,7 +9,7 @@ import { NotFoundException } from '@nestjs/common';
 export class ActivitiesService {
   constructor(
     @InjectModel(Activity.name) private activityModel: Model<ActivityDocument>,
-  ) {}
+  ) { }
 
   async createActivity(activityData: Partial<Activity>, created_by: string): Promise<Activity> {
     const activity = new this.activityModel(activityData);
@@ -42,7 +42,7 @@ export class ActivitiesService {
     return activity;
   }
 
-  async viewActivity(id: string, created_by: string): Promise<void> {
+  async markActivityAsViewed(id: string, created_by: string): Promise<void> {
     const activity = await this.activityModel.findById(id);
     if (!activity) {
       throw new NotFoundException('Actividad no encontrada');

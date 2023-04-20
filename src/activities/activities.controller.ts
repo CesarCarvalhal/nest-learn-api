@@ -1,5 +1,5 @@
 // activities.controller.ts
-import { Controller, Post, Body, Get, Param, Put, Delete, Req, UseGuards, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, Req, UseGuards, NotFoundException, UnauthorizedException, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
 import { Activity } from './activities.schema';
 import { ActivitiesService } from './activities.service';
 import { Auth0Guard, auth0Access } from 'src/auth/auth0.guard';
@@ -9,7 +9,7 @@ import axios from 'axios';
 @Controller('rest/activities')
 @UseGuards(Auth0Guard)
 export class ActivitiesController {
-  constructor(private readonly activitiesService: ActivitiesService) {}
+  constructor(private readonly activitiesService: ActivitiesService) { }
 
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
@@ -45,21 +45,45 @@ export class ActivitiesController {
   async createActivity(@Req() request: Request, @Body() activityData: Partial<Activity>): Promise<Activity> {
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new NotFoundException('Token no encontrado');
+      throw new HttpException('Token no encontrado', HttpStatus.UNAUTHORIZED);
     }
     const user = await this.getUserFromToken(token);
     await this.verifyUserIsAdmin(user.sub);
-    return this.activitiesService.createActivity(activityData, user.sub);
+    try {
+      const createdActivity = await this.activitiesService.createActivity(activityData, user.sub);
+      return createdActivity;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+      } else if (error instanceof UnauthorizedException) {
+        throw new HttpException('Acceso no autorizado', HttpStatus.UNAUTHORIZED);
+      } else {
+        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
+
 
   @Get()
   async getAllActivities(): Promise<Activity[]> {
-    return this.activitiesService.getAllActivities();
+    try {
+      return await this.activitiesService.getAllActivities();
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get(':id')
   async getActivityById(@Param('id') id: string): Promise<Activity> {
-    return this.activitiesService.getActivityById(id);
+    try {
+      const activity = await this.activitiesService.getActivityById(id);
+      if (!activity) {
+        throw new NotFoundException('Actividad no encontrada');
+      }
+      return activity;
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Put(':id')
@@ -70,7 +94,19 @@ export class ActivitiesController {
     }
     const user = await this.getUserFromToken(token);
     await this.verifyUserIsAdmin(user.sub);
-    return this.activitiesService.updateActivity(id, activityData);
+    try {
+      const updatedActivity = await this.activitiesService.updateActivity(id, activityData);
+      if (!updatedActivity) {
+        throw new NotFoundException('Actividad no encontrada');
+      }
+      return updatedActivity;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 
   @Delete(':id')
@@ -81,31 +117,67 @@ export class ActivitiesController {
     }
     const user = await this.getUserFromToken(token);
     await this.verifyUserIsAdmin(user.sub);
-    return this.activitiesService.deleteActivity(id);
+    try {
+      const deletedActivity = await this.activitiesService.deleteActivity(id);
+      if (!deletedActivity) {
+        throw new NotFoundException('Actividad no encontrada');
+      }
+      return deletedActivity;
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
+  // Mark the activity as viewed by the user
   @Post(':id/view')
-  async viewActivity(@Param('id') id: string, @Req() request: Request): Promise<void> {
-  const token = this.extractTokenFromHeader(request);
-  if (!token) {
-    throw new NotFoundException('Token no encontrado');
+  async markActivityAsViewed(@Param('id') id: string, @Req() request: Request): Promise<void> {
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new NotFoundException('Token no encontrado');
+    }
+    const user = await this.getUserFromToken(token);
+    try {
+      await this.activitiesService.markActivityAsViewed(id, user.sub);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Actividad no encontrada', HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
-  const user = await this.getUserFromToken(token);
-  return this.activitiesService.viewActivity(id, user.sub);
-  
-}
 
+  // Get all the viewers for the activity id
   @Get(':id/viewers')
   async getActivityViewers(@Param('id') id: string): Promise<string[]> {
-  const activity = await this.activitiesService.getActivityById(id);
-  return activity.viewed_by;
-}
-
-  // Get all the viwed activities for the user id
-  @Get("user/:id")
-  async getAllViwedActivities(@Param('id') id: string): Promise<Activity[]> {
-    const activities = await this.activitiesService.getViwedActivitiesByUser(id);
-    return activities;
+    try {
+      const activity = await this.activitiesService.getActivityById(id);
+      if (!activity) {
+        throw new NotFoundException('Actividad no encontrada');
+      }
+      return activity.viewed_by;
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
+  // Get all the viewed activities for the user id
+  @Get("user/:id")
+  async getAllViewedActivities(@Param('id') id: string): Promise<Activity[]> {
+    try {
+      const activities = await this.activitiesService.getViwedActivitiesByUser(id);
+      if (!activities || activities.length === 0) {
+        throw new NotFoundException('No se encontraron actividades vistas para este usuario.');
+      }
+      return activities;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new BadRequestException('ID de usuario no válido.');
+      }
+    }
+  }
 }
+
+

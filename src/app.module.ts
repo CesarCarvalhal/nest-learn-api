@@ -13,8 +13,7 @@ import { ActivitiesModule } from './activities/activities.module';
   imports: [
     MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME),
     ActivitiesModule,
-  ]
-
+  ],
 })
 
 export class AppModule {}
