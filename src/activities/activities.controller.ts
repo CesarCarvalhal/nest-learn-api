@@ -55,12 +55,11 @@ export class ActivitiesController {
 
   @Get(':id')
   async getActivityById(@Param('id') id: string): Promise<Activity> {
-    var activity = null;
 
-    try {
-      activity = await this.activitiesService.getActivityById(id);
-    } catch (error) {
-      throw new NotFoundException('Actividad no encontrada');
+    // Check if the activity exists
+    const activity = await this.activitiesService.getActivityById(id);
+    if (!activity){
+      throw new NotFoundException('Actividad no encontrada')
     }
 
     try {
@@ -72,7 +71,7 @@ export class ActivitiesController {
 
   @Get(':id/viewers')
   async getActivityViewers(@Param('id') id: string): Promise<string[]> {
-    
+
     // Check if the activity exists
     const activity = await this.activitiesService.getActivityById(id);
     if (!activity){
@@ -131,10 +130,11 @@ export class ActivitiesController {
 
   @Post(':id/view')
   async markActivityAsViewed(@Param('id') id: string, @Req() request: Request): Promise<void> {
-    try {
-      await this.activitiesService.getActivityById(id);
-    } catch (error) {
-      throw new NotFoundException('Actividad no encontrada');
+    
+    // Check if the activity exists
+    const activity = await this.activitiesService.getActivityById(id);
+    if (!activity){
+      throw new NotFoundException('Actividad no encontrada')
     }
 
     const token = this.extractTokenFromHeader(request);
@@ -155,10 +155,11 @@ export class ActivitiesController {
 
   @Put(':id')
   async updateActivity(@Param('id') id: string, @Body() activityData: Partial<Activity>, @Req() request: Request): Promise<{ status: HttpStatus, message: string }> {
-    try {
-      await this.activitiesService.getActivityById(id);
-    } catch (error) {
-      throw new NotFoundException('Actividad no encontrada');
+    
+    // Check if the activity exists
+    const activity = await this.activitiesService.getActivityById(id);
+    if (!activity){
+      throw new NotFoundException('Actividad no encontrada')
     }
 
     const token = this.extractTokenFromHeader(request);
