@@ -1,21 +1,17 @@
+// app.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 // CONFIG
 import { config } from 'dotenv';
-config();
+config()
 
 // ROUTES
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME),
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME)
+  ]
 
 })
 export class AppModule {}
