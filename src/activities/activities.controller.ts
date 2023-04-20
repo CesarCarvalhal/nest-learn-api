@@ -184,10 +184,13 @@ export class ActivitiesController {
 
   @Delete(':id')
   async deleteActivity(@Param('id') id: string, @Req() request: Request): Promise<{ status: HttpStatus, message: string }> {
+
+    // Check if the activity exists
     try {
-      await this.activitiesService.getActivityById(id);
+      const activity = await this.activitiesService.getActivityById(id);
+      if (!activity){throw new NotFoundException('Actividad no encontrada')}
     } catch (error) {
-      throw new NotFoundException('Actividad no encontrada');
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     const token = this.extractTokenFromHeader(request);
