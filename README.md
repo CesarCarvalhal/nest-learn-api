@@ -1,54 +1,13 @@
 # Nest Learn Api
 
-## Basic structure
+API para la plataforma de aprendizaje Nest Learn.
 
-### Api
-- Listado de actividades
-- Envío de respuestas
-- Validación de respuestas
-- Datos de usuario
+### Descripción
 
-## /rest/activities
+La API Nest Learn proporciona un conjunto de endpoints para interactuar con la plataforma de aprendizaje. 
 
-The `/rest/activities` endpoint is used to manage the activities.
+### Documentación
+La documentación de la API se puede encontrar en Swagger, en los siguientes enlaces:
 
-### GETS
-
-- **Get all activities**: Returns a list of all activities.
-    - `/rest/activities`
-- **Get a activity by ID**: Returns a specific activity by ID.
-    - `/rest/activities/:id`
-
-### POSTS 
-
-- **Send activity**: Sends the activity.
-    - `/rest/activities`
-
-        ```json
-        {
-            "title": "Title of the activity",
-            "description": "Description of the activity",
-            "type": "Type of activity",
-            "content": "Content of the activity"
-        }
-        ```
-
-### PUTS
-
-- **Update activity**: Updates a activity.
-    - `/rest/activities/:id`
-
-        ```json
-        {
-            "title": "New Title",
-            "description": "New Description",
-            "type": "New Type",
-            "content": "New Content"
-        }
-        ```
-
-### DELETES
-
-- **Delete activity**: Deletes a activity.
-    - `/rest/activities/:id`
-  
+ - https://git.netexlearning.com/LearningAPP/fct/nest-learn-api/-/blob/develop/swagger.yaml
+ - https://git.netexlearning.com/LearningAPP/fct/nest-learn-api/-/raw/develop/swagger.yaml
