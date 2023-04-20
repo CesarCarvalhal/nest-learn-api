@@ -72,10 +72,11 @@ export class ActivitiesController {
 
   @Get(':id/viewers')
   async getActivityViewers(@Param('id') id: string): Promise<string[]> {
-    try {
-      await this.activitiesService.getActivityById(id);
-    } catch (error) {
-      throw new NotFoundException('Actividad no encontrada');
+    
+    // Check if the activity exists
+    const activity = await this.activitiesService.getActivityById(id);
+    if (!activity){
+      throw new NotFoundException('Actividad no encontrada')
     }
 
     try {
@@ -186,11 +187,9 @@ export class ActivitiesController {
   async deleteActivity(@Param('id') id: string, @Req() request: Request): Promise<{ status: HttpStatus, message: string }> {
 
     // Check if the activity exists
-    try {
-      const activity = await this.activitiesService.getActivityById(id);
-      if (!activity){throw new NotFoundException('Actividad no encontrada')}
-    } catch (error) {
-      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    const activity = await this.activitiesService.getActivityById(id);
+    if (!activity){
+      throw new NotFoundException('Actividad no encontrada')
     }
 
     const token = this.extractTokenFromHeader(request);
