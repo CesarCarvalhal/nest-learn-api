@@ -6,12 +6,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { config } from 'dotenv';
 config()
 
-// ROUTES
+// USERS
+import { UserController } from './users/user.controller';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME)
-  ]
-
+    MongooseModule.forRoot('mongodb://' + process.env.URL + process.env.DBNAME),
+  ],
+  controllers: [UserController],
+  providers: [],
 })
 export class AppModule {}
