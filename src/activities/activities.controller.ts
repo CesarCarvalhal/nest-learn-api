@@ -41,28 +41,8 @@ export class ActivitiesController {
     }
   }
 
-  @Post()
-  async createActivity(@Req() request: Request, @Body() activityData: Partial<Activity>): Promise<Activity> {
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new HttpException('Token no encontrado', HttpStatus.UNAUTHORIZED);
-    }
-    const user = await this.getUserFromToken(token);
-    await this.verifyUserIsAdmin(user.sub);
-    try {
-      const createdActivity = await this.activitiesService.createActivity(activityData, user.sub);
-      return createdActivity;
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
-      } else if (error instanceof UnauthorizedException) {
-        throw new HttpException('Acceso no autorizado', HttpStatus.UNAUTHORIZED);
-      } else {
-        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
-
+  
+  // GETS
 
   @Get()
   async getAllActivities(): Promise<Activity[]> {
@@ -75,93 +55,37 @@ export class ActivitiesController {
 
   @Get(':id')
   async getActivityById(@Param('id') id: string): Promise<Activity> {
+    var activity = null;
+
     try {
-      const activity = await this.activitiesService.getActivityById(id);
-      if (!activity) {
-        throw new NotFoundException('Actividad no encontrada');
-      }
+      activity = await this.activitiesService.getActivityById(id);
+    } catch (error) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    try {
       return activity;
     } catch (error) {
       throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Put(':id')
-  async updateActivity(@Param('id') id: string, @Body() activityData: Partial<Activity>, @Req() request: Request): Promise<Activity> {
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new NotFoundException('Token no encontrado');
-    }
-    const user = await this.getUserFromToken(token);
-    await this.verifyUserIsAdmin(user.sub);
-    try {
-      const updatedActivity = await this.activitiesService.updateActivity(id, activityData);
-      if (!updatedActivity) {
-        throw new NotFoundException('Actividad no encontrada');
-      }
-      return updatedActivity;
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
-
-  @Delete(':id')
-  async deleteActivity(@Param('id') id: string, @Req() request: Request): Promise<Activity> {
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new NotFoundException('Token no encontrado');
-    }
-    const user = await this.getUserFromToken(token);
-    await this.verifyUserIsAdmin(user.sub);
-    try {
-      const deletedActivity = await this.activitiesService.deleteActivity(id);
-      if (!deletedActivity) {
-        throw new NotFoundException('Actividad no encontrada');
-      }
-      return deletedActivity;
-    } catch (error) {
-      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  // Mark the activity as viewed by the user
-  @Post(':id/view')
-  async markActivityAsViewed(@Param('id') id: string, @Req() request: Request): Promise<void> {
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new NotFoundException('Token no encontrado');
-    }
-    const user = await this.getUserFromToken(token);
-    try {
-      await this.activitiesService.markActivityAsViewed(id, user.sub);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new HttpException('Actividad no encontrada', HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
-
-  // Get all the viewers for the activity id
   @Get(':id/viewers')
   async getActivityViewers(@Param('id') id: string): Promise<string[]> {
     try {
+      await this.activitiesService.getActivityById(id);
+    } catch (error) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    try {
       const activity = await this.activitiesService.getActivityById(id);
-      if (!activity) {
-        throw new NotFoundException('Actividad no encontrada');
-      }
       return activity.viewed_by;
     } catch (error) {
       throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  // Get all the viewed activities for the user id
   @Get("user/:id")
   async getAllViewedActivities(@Param('id') id: string): Promise<Activity[]> {
     try {
@@ -178,6 +102,107 @@ export class ActivitiesController {
       }
     }
   }
+
+
+  // POSTS
+
+  @Post()
+  async createActivity(@Req() request: Request, @Body() activityData: Partial<Activity>): Promise<{ status: HttpStatus, message: string }> {
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('Token no encontrado');
+    }
+    const user = await this.getUserFromToken(token);
+    await this.verifyUserIsAdmin(user.sub);
+    try {
+      await this.activitiesService.createActivity(activityData, user.sub);
+      return { status: HttpStatus.CREATED, message: 'Actividad creada correctamente' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+      } else if (error instanceof UnauthorizedException) {
+        throw new HttpException('Acceso no autorizado', HttpStatus.UNAUTHORIZED);
+      } else {
+        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @Post(':id/view')
+  async markActivityAsViewed(@Param('id') id: string, @Req() request: Request): Promise<void> {
+    try {
+      await this.activitiesService.getActivityById(id);
+    } catch (error) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('Token no encontrado');
+    }
+    const user = await this.getUserFromToken(token);
+    try {
+      await this.activitiesService.markActivityAsViewed(id, user.sub);
+    }
+    catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  // PUT
+
+  @Put(':id')
+  async updateActivity(@Param('id') id: string, @Body() activityData: Partial<Activity>, @Req() request: Request): Promise<{ status: HttpStatus, message: string }> {
+    try {
+      await this.activitiesService.getActivityById(id);
+    } catch (error) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('Token no encontrado');
+    }
+    const user = await this.getUserFromToken(token);
+    await this.verifyUserIsAdmin(user.sub);
+
+    try {
+      await this.activitiesService.updateActivity(id, activityData);
+      return { status: HttpStatus.OK, message: 'Actividad actualizada correctamente' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+
+  // DELETE
+
+  @Delete(':id')
+  async deleteActivity(@Param('id') id: string, @Req() request: Request): Promise<{ status: HttpStatus, message: string }> {
+    try {
+      await this.activitiesService.getActivityById(id);
+    } catch (error) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('Token no encontrado');
+    }
+
+    const user = await this.getUserFromToken(token);
+    await this.verifyUserIsAdmin(user.sub);
+
+    try {
+      await this.activitiesService.deleteActivity(id);
+      return { status: HttpStatus.OK, message: 'Actividad eliminada correctamente' };
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
-
-
