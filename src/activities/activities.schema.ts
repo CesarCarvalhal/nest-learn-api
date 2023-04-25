@@ -7,7 +7,7 @@ export class Activity {
   @Prop({ required: true })
   title: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   description: string;
 
   @Prop({ required: true })
@@ -24,6 +24,9 @@ export class Activity {
 
   @Prop({ required: true, type: [String] })
   viewed_by: string[];
+
+  @Prop({ default: '' })
+  image: string;
 }
 
 export type ActivityDocument = Activity & Document;

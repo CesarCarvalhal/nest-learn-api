@@ -114,6 +114,10 @@ export class ActivitiesController {
     }
     const user = await this.getUserFromToken(token);
     await this.verifyUserIsAdmin(user.sub);
+    
+    activityData.description = activityData.description || '';
+    activityData.image = activityData.image || '';
+    
     try {
       await this.activitiesService.createActivity(activityData, user.sub);
       return { status: HttpStatus.CREATED, message: 'Actividad creada correctamente' };
@@ -127,6 +131,7 @@ export class ActivitiesController {
       }
     }
   }
+  
 
   @Post(':id/view')
   async markActivityAsViewed(@Param('id') id: string, @Req() request: Request): Promise<void> {
