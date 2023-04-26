@@ -1,5 +1,5 @@
 // activities.controller.ts
-import { Controller, Post, Body, Get, Param, Put, Delete, Req, UseGuards, NotFoundException, UnauthorizedException, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, Req, UseGuards, NotFoundException, UnauthorizedException, HttpException, HttpStatus, BadRequestException, Patch } from '@nestjs/common';
 import { Activity } from './activities.schema';
 import { ActivitiesService } from './activities.service';
 import { Auth0Guard, auth0Access } from 'src/auth/auth0.guard';
@@ -234,6 +234,29 @@ export class ActivitiesController {
     try {
       await this.activitiesService.deleteActivity(id);
       return { status: HttpStatus.OK, message: 'Actividad eliminada correctamente' };
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  // Check student answers to the activity
+  @Patch('answer/:id')
+  async checkAnswer(@Param('id') id: string, @Body() body: Partial<any>): Promise<{ status: HttpStatus, isCorrect: boolean }> {
+
+    if (!body.answer) {
+      throw new BadRequestException('Cuerpo de la petición mal formado')
+    }
+
+    // Check if the activity exists
+    const activity = await this.activitiesService.getActivityById(id);
+    if (!activity){
+      throw new NotFoundException('Actividad no encontrada')
+    }
+
+    try {
+      const answerResponse = await this.activitiesService.checkAnswer(body.answer, activity);
+      return { status: HttpStatus.OK, isCorrect: answerResponse };
     } catch (error) {
       throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
     }
