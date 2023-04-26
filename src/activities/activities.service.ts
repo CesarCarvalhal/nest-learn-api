@@ -15,6 +15,17 @@ export class ActivitiesService {
     const activity = new this.activityModel(activityData);
     activity.created_by = created_by;
     activity.created_at = new Date().getTime().toString();
+
+    // Handle the new activity types
+    if (activityData.type === 'True/False' && typeof activityData.isTrue !== 'undefined') {
+      activity.isTrue = activityData.isTrue;
+    } else if (activityData.type === 'Multiple options' && activityData.options) {
+      activity.options = activityData.options;
+    } else {
+      activity.isTrue = null;
+      activity.options = [];
+    }
+  
     const savedActivity = await activity.save();
     return savedActivity;
   }

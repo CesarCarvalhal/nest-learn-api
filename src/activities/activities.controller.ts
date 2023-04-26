@@ -41,6 +41,30 @@ export class ActivitiesController {
     }
   }
 
+  private validateActivityData(activityData: Partial<Activity>) {
+    const { type, content, options, isTrue } = activityData;
+  
+    if (!['Text', 'True/False', 'Multiple options'].includes(type)) {
+      throw new BadRequestException('Tipo de actividad no válido');
+    }
+  
+    if (type === 'True/False' && (isTrue === undefined || isTrue === null)) {
+      throw new BadRequestException('Falta el valor True/False');
+    }
+  
+    if (type === 'Multiple options') {
+      if (!options || options.length < 2) {
+        throw new BadRequestException('Se requieren al menos 2 opciones');
+      }
+  
+      const correctOptions = options.filter((option) => option.correct);
+      if (correctOptions.length !== 1) {
+        throw new BadRequestException('Se requiere exactamente 1 opción correcta');
+      }
+    }
+  }
+  
+
   
   // GETS
 
@@ -114,6 +138,7 @@ export class ActivitiesController {
     }
     const user = await this.getUserFromToken(token);
     await this.verifyUserIsAdmin(user.sub);
+    await this.validateActivityData(activityData);
     
     activityData.description = activityData.description || '';
     activityData.image = activityData.image || '';

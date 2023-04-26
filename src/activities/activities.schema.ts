@@ -16,6 +16,12 @@ export class Activity {
   @Prop({ required: true })
   content: string;
 
+  @Prop({ type: Boolean, default: null })
+  isTrue: boolean | null;
+
+  @Prop({ type: [{ text: String, correct: Boolean }] })
+  options: { text: string; correct: boolean }[];
+
   @Prop({ required: true })
   created_at: string;
 
