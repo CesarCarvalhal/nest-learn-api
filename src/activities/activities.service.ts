@@ -63,8 +63,27 @@ export class ActivitiesService {
       await activity.save();
     }
   }
+
   async getViwedActivitiesByUser(userId: string): Promise<Activity[]> {
     const activities = await this.activityModel.find({ viewed_by: userId }).exec();
     return activities;
+  }
+
+  async checkAnswer(answer: string, activityData: Partial<Activity>): Promise<boolean> {
+    var result = false;
+    
+    if (activityData.type !== "Text"){
+      // True/False
+      if (activityData.type === "True/False"){
+        if (answer === activityData.isTrue.toString()){ result = true }
+      }
+
+      // Multiple options
+      if (activityData.type === "Multiple options" ){
+        const correctAnswer = activityData.options.find(option => option.correct === true);
+        if (answer === correctAnswer.text){ result = true }
+      }
+    }
+    return result;
   }
 }
