@@ -244,6 +244,10 @@ export class ActivitiesController {
   @Patch('answer/:id')
   async checkAnswer(@Param('id') id: string, @Body() body: Partial<any>): Promise<{ status: HttpStatus, isCorrect: boolean }> {
 
+    if (!body.answer) {
+      throw new BadRequestException('Cuerpo de la petición mal formado')
+    }
+
     // Check if the activity exists
     const activity = await this.activitiesService.getActivityById(id);
     if (!activity){
