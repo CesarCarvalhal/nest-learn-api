@@ -447,7 +447,7 @@ paths:
                   message:
                     type: string
                     example: Actividad no encontrada
-  /answer/{id}:
+  /rest/activities/answer/{id}:
     patch:
       summary: Verificar la respuesta de un estudiante a la actividad
       description: Comprueba si la respuesta del estudiante a la actividad es correcta o no.
