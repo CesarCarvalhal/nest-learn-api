@@ -447,7 +447,45 @@ paths:
                   message:
                     type: string
                     example: Actividad no encontrada
-
+  /answer/{id}:
+    patch:
+      summary: Verificar la respuesta de un estudiante a la actividad
+      description: Comprueba si la respuesta del estudiante a la actividad es correcta o no.
+      tags:
+        - Activities
+      parameters:
+        - name: id
+          in: path
+          description: ID de la actividad
+          required: true
+          schema:
+            type: string
+        - name: body
+          in: query
+          description: Respuesta del estudiante
+          required: true
+          schema:
+            type: object
+            properties:
+              answer:
+                type: string
+      responses:
+        '200':
+          description: Respuesta verificada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isCorrect:
+                    type: boolean
+        '400':
+          description: Cuerpo de la petición mal formado
+        '404':
+          description: Actividad no encontrada
+        '500':
+          description: Error interno del servidor              
+  
 components:
   schemas:
     Activity:
@@ -463,14 +501,41 @@ components:
         description:
           type: string
           example: Esta actividad permite practicar las operaciones básicas de matemáticas.
-        createdBy:
+        type:
           type: string
-          example: 'auth0|abcdefg123456'
-        createdAt:
+          example: Multiple options
+        content:
           type: string
-          format: date-time
-          example: '2023-04-19T14:27:25.000Z'
-        updatedAt:
+          example: Contenido Opcion multiple
+        isTrue:
+          type: boolean
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                example: Opcion 1
+              correct:
+                type: boolean
+                example: true
+              _id:
+                type: string
+                format: ObjectId
+                example: '6448e01cd867c5046b7347dd'
+        viewed_by:
+          type: array
+          items:
+            type: string
+            example: 'auth0|abcdefg123456'
+        image:
+          type: string
+          example: 'https://ejemplo.com/imagen.png'
+        created_by:
+          type: string
+          example: 'auth0|6435378cac665a034ba943a4'
+        created_at:
           type: string
           format: date-time
           example: '2023-04-19T14:27:25.000Z'
@@ -478,6 +543,11 @@ components:
         - id
         - title
         - description
-        - createdBy
-        - createdAt
+        - type
+        - content
+        - options
+        - viewed_by
+        - image
+        - created_by
+        - created_at
         - updatedAt
