@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Course, CourseDocument } from './courses.schema';
 import { Activity, ActivityDocument } from 'src/activities/activities.schema';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 
 
 @Injectable()
@@ -14,6 +14,7 @@ export class CourseService {
     @InjectModel(Activity.name) private activityModel: Model<ActivityDocument>,
   ) { }
 
+  
   // POSTS
   async createCourse(course: Partial<Course>, created_by: string): Promise<Course> {
     const createdCourse = new this.courseModel(course);
@@ -22,6 +23,22 @@ export class CourseService {
 
     return createdCourse.save();
   }
+
+  async addActivityToCourse(courseId: string, activityId: string): Promise<Course> {
+    const course = await this.courseModel.findById(courseId).exec();
+    if (!course) {
+      throw new NotFoundException('Curso no encontrado');
+    }
+
+    const activity = await this.activityModel.findById(activityId).exec();
+    if (!activity) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    course.activities.push(activityId);
+    return course.save();
+  }
+
 
   // GETS
   async getAllCourses(): Promise<Course[]> {
@@ -32,6 +49,7 @@ export class CourseService {
     return this.courseModel.findById(id).exec();
   }
 
+
   // PUTS
   async updateCourseById(id: string, course: Partial<Course>): Promise<Course> {
     const updatedCourse = await this.courseModel.findByIdAndUpdate(id, course, { new: true }).exec();
@@ -40,6 +58,7 @@ export class CourseService {
     }
     return updatedCourse;
   }
+
 
   // DELETES
   async deleteCourseById(id: string): Promise<Course> {

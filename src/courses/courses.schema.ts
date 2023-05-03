@@ -1,6 +1,6 @@
+// courses.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Activity, ActivitySchema } from 'src/activities/activities.schema';
 
 @Schema()
 export class Course {
@@ -10,8 +10,8 @@ export class Course {
   @Prop({ default: '' })
   description: string;
 
-  @Prop({ type: [ActivitySchema], default: [] })
-  activities: Activity[];
+  @Prop({ required: true, type: [String] })
+  activities: string[];
 
   @Prop({ required: true })
   created_at: string;

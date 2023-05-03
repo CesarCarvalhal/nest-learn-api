@@ -41,6 +41,7 @@ export class CourseController {
         }
     }
 
+
     // POSTS
 
     @Post()
@@ -65,6 +66,32 @@ export class CourseController {
             }
         }
     }
+
+    @Post(':courseId/activities/:activityId')
+    async addActivityToCourse(@Req() request: Request, @Param('courseId') courseId: string, @Param('activityId') activityId: string): Promise<{ status: HttpStatus, message: string }> {
+        const token = this.extractTokenFromHeader(request);
+        if (!token) {
+            throw new UnauthorizedException('Token no encontrado');
+        }
+        const user = await this.getUserFromToken(token);
+        await this.verifyUserIsAdmin(user.sub);
+
+        try {
+            await this.courseService.addActivityToCourse(courseId, activityId);
+            return { status: HttpStatus.CREATED, message: 'Actividad añadida correctamente' };
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw new HttpException('Curso o actividad no encontrados', HttpStatus.NOT_FOUND);
+            } else if (error instanceof BadRequestException) {
+                throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+            } else if (error instanceof UnauthorizedException) {
+                throw new HttpException('Acceso no autorizado', HttpStatus.UNAUTHORIZED);
+            } else {
+                throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+
 
     // GETS
 
@@ -96,7 +123,9 @@ export class CourseController {
         }
     }
 
+
     // PUTS
+
     @ Put(':id')
     async updateCourseById(@Req() request: Request, @Param('id') id: string, @Body() courseData: Course): Promise<{ status: HttpStatus, message: string }> {
         const token = this.extractTokenFromHeader(request);
@@ -124,7 +153,7 @@ export class CourseController {
             }
         }
     }
-    
+
 
     // DELETES
 
