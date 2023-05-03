@@ -92,7 +92,6 @@ export class CourseController {
         }
     }
 
-
     // GETS
 
     @Get()
@@ -126,7 +125,7 @@ export class CourseController {
 
     // PUTS
 
-    @ Put(':id')
+    @Put(':id')
     async updateCourseById(@Req() request: Request, @Param('id') id: string, @Body() courseData: Course): Promise<{ status: HttpStatus, message: string }> {
         const token = this.extractTokenFromHeader(request);
         if (!token) {
@@ -176,6 +175,36 @@ export class CourseController {
             return { status: HttpStatus.OK, message: 'Curso eliminado correctamente' };
         } catch (error) {
             throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Delete(':courseId/activities/:activityId')
+    async removeActivityFromCourse(@Req() request: Request, @Param('courseId') courseId: string, @Param('activityId') activityId: string): Promise<{ status: HttpStatus, message: string }> {
+        const token = this.extractTokenFromHeader(request);
+        if (!token) {
+            throw new UnauthorizedException('Token no encontrado');
+        }
+        const user = await this.getUserFromToken(token);
+        await this.verifyUserIsAdmin(user.sub);
+
+        const course = await this.courseService.getCourseById(courseId);
+        if (!course) {
+            throw new NotFoundException('Curso no encontrado');
+        }
+
+        try {
+            await this.courseService.removeActivityFromCourse(courseId, activityId);
+            return { status: HttpStatus.OK, message: 'Actividad eliminada correctamente del curso' };
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw new HttpException('Curso o actividad no encontrados', HttpStatus.NOT_FOUND);
+            } else if (error instanceof BadRequestException) {
+                throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+            } else if (error instanceof UnauthorizedException) {
+                throw new HttpException('Acceso no autorizado', HttpStatus.UNAUTHORIZED);
+            } else {
+                throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
     }
 }

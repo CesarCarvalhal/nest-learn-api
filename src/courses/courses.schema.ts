@@ -19,9 +19,6 @@ export class Course {
   @Prop({ required: true })
   created_by: string;
 
-  @Prop({ required: true, type: [String] })
-  viewed_by: string[];
-
   @Prop({ default: '' })
   image: string;
 }

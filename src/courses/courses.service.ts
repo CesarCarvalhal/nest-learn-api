@@ -71,4 +71,19 @@ export class CourseService {
     return deletedCourse;
   }
 
+  async removeActivityFromCourse(courseId: string, activityId: string): Promise<Course> {
+    const course = await this.courseModel.findById(courseId).exec();
+    if (!course) {
+      throw new NotFoundException('Curso no encontrado');
+    }
+
+    const activity = await this.activityModel.findById(activityId).exec();
+    if (!activity) {
+      throw new NotFoundException('Actividad no encontrada');
+    }
+
+    course.activities = course.activities.filter(activity => activity != activityId);
+    return course.save();
+  }
+
 }
