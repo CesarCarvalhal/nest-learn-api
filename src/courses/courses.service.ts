@@ -1,8 +1,11 @@
+// course.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Course, CourseDocument } from './courses.schema';
 import { Activity, ActivityDocument } from 'src/activities/activities.schema';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
+
 
 @Injectable()
 export class CourseService {
@@ -27,6 +30,17 @@ export class CourseService {
 
   async getCourseById(id: string): Promise<Course> {
     return this.courseModel.findById(id).exec();
+  }
+
+  // DELETES
+  async deleteCourseById(id: string): Promise<Course> {
+    const deletedCourse = await this.courseModel.findByIdAndDelete(id).exec();
+    if (!deletedCourse) {
+      throw new NotFoundException('Curso no encontrado');
+    }
+
+    await this.activityModel.deleteMany({ course: deletedCourse._id }).exec();
+    return deletedCourse;
   }
 
 }

@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Req, Param, Body, UseGuards, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+// courses.controller.ts
+import { Controller, Post, Get, Req, Delete, Param, Body, UseGuards, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { CourseService } from './courses.service';
 import { Course } from './courses.schema';
 import { Auth0Guard, auth0Access } from 'src/auth/auth0.guard';
@@ -90,6 +91,30 @@ export class CourseController {
 
         try {
             return course;
+        } catch (error) {
+            throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // DELETES
+
+    @Delete(':id')
+    async deleteCourseById(@Req() request: Request, @Param('id') id: string): Promise<{ status: HttpStatus, message: string }> {
+        const token = this.extractTokenFromHeader(request);
+        if (!token) {
+            throw new UnauthorizedException('Token no encontrado');
+        }
+        const user = await this.getUserFromToken(token);
+        await this.verifyUserIsAdmin(user.sub);
+
+        const course = await this.courseService.getCourseById(id);
+        if (!course) {
+            throw new NotFoundException('Curso no encontrado');
+        }
+
+        try {
+            await this.courseService.deleteCourseById(id);
+            return { status: HttpStatus.OK, message: 'Curso eliminado correctamente' };
         } catch (error) {
             throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
         }
