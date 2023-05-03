@@ -1,11 +1,11 @@
-import { Controller, Post, Req, Body, UseGuards, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Req, Param, Body, UseGuards, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { CourseService } from './courses.service';
 import { Course } from './courses.schema';
 import { Auth0Guard, auth0Access } from 'src/auth/auth0.guard';
 import axios from 'axios';
 import { Request } from 'express';
 
-@Controller('courses')
+@Controller('rest/courses')
 @UseGuards(Auth0Guard)
 export class CourseController {
     constructor(private readonly courseService: CourseService) { }
@@ -40,6 +40,8 @@ export class CourseController {
         }
     }
 
+    // POSTS
+
     @Post()
     async createCourse(@Req() request: Request, @Body() courseData: Course): Promise<{ status: HttpStatus, message: string }> {
         const token = this.extractTokenFromHeader(request);
@@ -60,6 +62,36 @@ export class CourseController {
             } else {
                 throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        }
+    }
+
+    // GETS
+
+    @Get()
+    async getAllCourses(): Promise<Course[]> {
+        try {
+            return await this.courseService.getAllCourses();
+        } catch (error) {
+            throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get(':id')
+    async getCourseById(@Req() request: Request, @Param('id') id: string): Promise<Course> {
+        const token = this.extractTokenFromHeader(request);
+        if (!token) {
+            throw new UnauthorizedException('Token no encontrado');
+        }
+
+        const course = await this.courseService.getCourseById(id);
+        if (!course) {
+            throw new NotFoundException('Curso no encontrado');
+        }
+
+        try {
+            return course;
+        } catch (error) {
+            throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

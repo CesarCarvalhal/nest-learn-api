@@ -11,6 +11,7 @@ export class CourseService {
     @InjectModel(Activity.name) private activityModel: Model<ActivityDocument>,
   ) { }
 
+  // POSTS
   async createCourse(course: Partial<Course>, created_by: string): Promise<Course> {
     const createdCourse = new this.courseModel(course);
     createdCourse.created_by = created_by;
@@ -18,4 +19,14 @@ export class CourseService {
 
     return createdCourse.save();
   }
+
+  // GETS
+  async getAllCourses(): Promise<Course[]> {
+    return this.courseModel.find().exec();
+  }
+
+  async getCourseById(id: string): Promise<Course> {
+    return this.courseModel.findById(id).exec();
+  }
+
 }
