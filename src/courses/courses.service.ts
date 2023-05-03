@@ -32,6 +32,15 @@ export class CourseService {
     return this.courseModel.findById(id).exec();
   }
 
+  // PUTS
+  async updateCourseById(id: string, course: Partial<Course>): Promise<Course> {
+    const updatedCourse = await this.courseModel.findByIdAndUpdate(id, course, { new: true }).exec();
+    if (!updatedCourse) {
+      throw new NotFoundException('Curso no encontrado');
+    }
+    return updatedCourse;
+  }
+
   // DELETES
   async deleteCourseById(id: string): Promise<Course> {
     const deletedCourse = await this.courseModel.findByIdAndDelete(id).exec();

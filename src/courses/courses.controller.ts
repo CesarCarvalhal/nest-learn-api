@@ -1,5 +1,5 @@
 // courses.controller.ts
-import { Controller, Post, Get, Req, Delete, Param, Body, UseGuards, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Req, Delete, Param, Body, UseGuards, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus, Put } from '@nestjs/common';
 import { CourseService } from './courses.service';
 import { Course } from './courses.schema';
 import { Auth0Guard, auth0Access } from 'src/auth/auth0.guard';
@@ -95,6 +95,36 @@ export class CourseController {
             throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // PUTS
+    @ Put(':id')
+    async updateCourseById(@Req() request: Request, @Param('id') id: string, @Body() courseData: Course): Promise<{ status: HttpStatus, message: string }> {
+        const token = this.extractTokenFromHeader(request);
+        if (!token) {
+            throw new UnauthorizedException('Token no encontrado');
+        }
+        const user = await this.getUserFromToken(token);
+        await this.verifyUserIsAdmin(user.sub);
+
+        const course = await this.courseService.getCourseById(id);
+        if (!course) {
+            throw new NotFoundException('Curso no encontrado');
+        }
+
+        try {
+            await this.courseService.updateCourseById(id, courseData);
+            return { status: HttpStatus.OK, message: 'Curso actualizado correctamente' };
+        } catch (error) {
+            if (error instanceof BadRequestException) {
+                throw new HttpException('Error en la solicitud', HttpStatus.BAD_REQUEST);
+            } else if (error instanceof UnauthorizedException) {
+                throw new HttpException('Acceso no autorizado', HttpStatus.UNAUTHORIZED);
+            } else {
+                throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+    
 
     // DELETES
 
