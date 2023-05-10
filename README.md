@@ -7,7 +7,7 @@ API para la plataforma de aprendizaje Nest Learn.
 La API Nest Learn proporciona un conjunto de endpoints para interactuar con la plataforma de aprendizaje. 
 
 ### Documentación
-La documentación de la API se puede encontrar en Swagger, en los siguientes enlaces:
+La documentación de la API se puede encontrar en Swagger en las siguientes direcciones URL:
 
- - https://git.netexlearning.com/LearningAPP/fct/nest-learn-api/-/blob/develop/swagger.yaml
- - https://git.netexlearning.com/LearningAPP/fct/nest-learn-api/-/raw/develop/swagger.yaml
+ - https://192.168.134.15:3000/api
+ - https://192.168.134.15:3000/api-json
