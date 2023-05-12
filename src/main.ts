@@ -16,12 +16,9 @@ async function bootstrap() {
   //const app = await NestFactory.create(AppModule, { httpsOptions });
 
   const app = await NestFactory.create(AppModule);
-
   app.enableCors();
-
   setupSwagger(app);
-
-  await app.listen(443);
+  await app.listen(3001);
 
 }
 
