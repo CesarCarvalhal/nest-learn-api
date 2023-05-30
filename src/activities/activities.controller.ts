@@ -405,7 +405,7 @@ export class ActivitiesController {
     }
   })
 
-  async checkAnswer(@Param('id') id: string, @Body() body: Partial<any>): Promise<{ status: HttpStatus, isCorrect: boolean }> {
+  async checkAnswer(@Param('id') id: string, @Body() body: Partial<any>): Promise<any> {
 
     if (!body.answer) {
       throw new BadRequestException('Cuerpo de la petición mal formado')
@@ -418,8 +418,8 @@ export class ActivitiesController {
     }
 
     try {
-      const answerResponse = await this.activitiesService.checkAnswer(body.answer, activity);
-      return { status: HttpStatus.OK, isCorrect: answerResponse };
+      const response = await this.activitiesService.checkAnswer(body.answer, activity);
+      return { status: HttpStatus.OK, isCorrect: response.result, comment: response.comment };
     } catch (error) {
       throw new HttpException('Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
     }

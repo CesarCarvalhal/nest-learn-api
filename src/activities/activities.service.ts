@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Activity, ActivityDocument } from './activities.schema';
 import { NotFoundException } from '@nestjs/common';
+import { Configuration, OpenAIApi } from "openai";
 
 @Injectable()
 export class ActivitiesService {
@@ -69,21 +70,70 @@ export class ActivitiesService {
     return activities;
   }
 
-  async checkAnswer(answer: string, activityData: Partial<Activity>): Promise<boolean> {
-    var result = false;
+  async checkAnswer(answer: string, activityData: Partial<Activity>): Promise<any> {
+    let result = false;
+    let comment = "";
     
-    if (activityData.type !== "Text"){
-      // True/False
-      if (activityData.type === "True/False"){
-        if (answer === activityData.isTrue.toString()){ result = true }
-      }
-
-      // Multiple options
-      if (activityData.type === "Multiple options" ){
-        const correctAnswer = activityData.options.find(option => option.correct === true);
-        if (answer === correctAnswer.text){ result = true }
+    // Plain text
+    if (activityData.type === "Text"){
+      try {
+        const response = await this.openaiCheck(answer, activityData.content);
+        result = response.result;
+        comment = response.comment;
+      } catch (error) {
+        result = false;
       }
     }
-    return result;
+
+    // True/False
+    if (activityData.type === "True/False"){
+      if (answer === activityData.isTrue.toString()){ result = true }
+    }
+
+    // Multiple options
+    if (activityData.type === "Multiple options" ){
+      const correctAnswer = activityData.options.find(option => option.correct === true);
+      if (answer === correctAnswer.text){ result = true }
+    }
+
+    return {result, comment};
+  }
+
+  async openaiCheck(answer: string, question: string): Promise<any> {
+    let result = false;
+
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI,
+    });
+    const openai = new OpenAIApi(configuration);
+
+    try {
+      const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `
+Dada la siguiente pregunta: "${question}";
+esta respuesta sería correcta?: "${answer}";
+Lo quiero con este formato:
+correcta: true o false (según el resultado de la respuesta),
+comentario: aqui haz un comentario muy reducido argumentando tu respuesta
+                `,
+        temperature: 0.5,
+        max_tokens: 100,
+      });
+
+      if (response.data.choices[0].text.toLowerCase().includes("false")) {
+        result = false;
+      } else if (response.data.choices[0].text.toLowerCase().includes("true")) {
+        result = true;
+      }
+      
+      const startIndex = response.data.choices[0].text.indexOf('comentario: ') + 'comentario: '.length;
+      const comment = response.data.choices[0].text.substring(startIndex);
+
+      return {result, comment: comment};
+      
+    } catch (error) {
+      console.log("Error: "+error.response.data);
+    }
   }
 }
