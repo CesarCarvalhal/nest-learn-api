@@ -70,13 +70,16 @@ export class ActivitiesService {
     return activities;
   }
 
-  async checkAnswer(answer: string, activityData: Partial<Activity>): Promise<boolean> {
-    var result = false;
+  async checkAnswer(answer: string, activityData: Partial<Activity>): Promise<any> {
+    let result = false;
+    let comment = "";
     
     // Plain text
     if (activityData.type === "Text"){
       try {
-        result = await this.openaiCheck(answer, activityData.content)
+        const response = await this.openaiCheck(answer, activityData.content);
+        result = response.result;
+        comment = response.comment;
       } catch (error) {
         result = false;
       }
@@ -93,11 +96,11 @@ export class ActivitiesService {
       if (answer === correctAnswer.text){ result = true }
     }
 
-    return result;
+    return {result, comment};
   }
 
-  async openaiCheck(answer: string, question: string): Promise<boolean> {
-    var result = false;
+  async openaiCheck(answer: string, question: string): Promise<any> {
+    let result = false;
 
     const configuration = new Configuration({
       apiKey: process.env.OPENAI,
@@ -107,25 +110,30 @@ export class ActivitiesService {
     try {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
-        prompt: `Dada la siguiente pregunta: "${question}";
-                esta respuesta sería correcta?: "${answer}";
-                Responde true o false, en minusculas y sin ningun signo ortrográfico`,
+        prompt: `
+Dada la siguiente pregunta: "${question}";
+esta respuesta sería correcta?: "${answer}";
+Lo quiero con este formato:
+correcta: true o false (según el resultado de la respuesta),
+comentario: aqui haz un comentario muy reducido argumentando tu respuesta
+                `,
         temperature: 0.5,
-        max_tokens: 5,
-        // top_p: 1.0,
-        // frequency_penalty: 0.0,
-        // presence_penalty: 0.0,
+        max_tokens: 100,
       });
 
-      if (response.data.choices[0].text.includes("false")) {
+      if (response.data.choices[0].text.toLowerCase().includes("false")) {
         result = false;
-      } else if (response.data.choices[0].text.includes("true")) {
+      } else if (response.data.choices[0].text.toLowerCase().includes("true")) {
         result = true;
       }
+      
+      const startIndex = response.data.choices[0].text.indexOf('comentario: ') + 'comentario: '.length;
+      const comment = response.data.choices[0].text.substring(startIndex);
 
+      return {result, comment: comment};
+      
     } catch (error) {
       console.log("Error: "+error.response.data);
     }
-    return result;
   }
 }
