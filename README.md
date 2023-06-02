@@ -71,10 +71,11 @@ Además, asegúrate de tener Docker instalado en tu sistema, y seguir los siguie
 
 1. docker pull mongo
 2. docker run --name mongo-learn -p 27017:27017 -d mongo
-3. sudo docker cp ruta_carpeta_mongo-api/. CONTAINER_ID:/data/db/
-4. sudo docker exec -it CONTAINER_ID mongorestore --db LearnDB /data/db/
-5. Inicia la aplicación ejecutando el comando `npm run start`.
-6. El swagger estará disponible en `http://localhost:3001/api`.
+3. sudo docker ps
+4. sudo docker cp ruta_carpeta_mongo-api/. CONTAINER_ID:/data/db/
+5. sudo docker exec -it CONTAINER_ID mongorestore --db LearnDB /data/db/
+6. Inicia la aplicación ejecutando el comando `npm run start`.
+7. El swagger estará disponible en `http://localhost:3001/api`.
 
  
 
