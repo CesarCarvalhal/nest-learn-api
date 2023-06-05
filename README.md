@@ -1,36 +1,17 @@
 # Nest Learn Api
-
- 
-
-API para la plataforma de aprendizaje Nest Learn.
-
- 
-
-### Descripción
-
- 
-
 La API Nest Learn proporciona un conjunto de endpoints para interactuar con la plataforma de aprendizaje.
 
  
-
+#
 ### Documentación
-La documentación de la API se puede encontrar en Swagger en las siguientes direcciones URL:
-
- 
+La documentación de la API se puede encontrar en Swagger en la siguiente direccion URL:
 
 - [https://vm15.netexlearning.cloud/api](https://vm15.netexlearning.cloud/api)
-- [https://vm15.netexlearning.cloud/api-json](https://vm15.netexlearning.cloud/api-json)
 
- 
 
+#
 ### Requisitos previos
-
- 
-
-Antes de comenzar a utilizar la API Nest Learn, asegúrate de tener instaladas las siguientes herramientas y tecnologías:
-
- 
+Antes de comenzar a utilizar la Nest Learn Api, asegúrate de tener instaladas las siguientes herramientas y tecnologías:
 
 - Node.js LTS
 - npm 
@@ -38,69 +19,77 @@ Antes de comenzar a utilizar la API Nest Learn, asegúrate de tener instaladas l
 - Docker
 
  
-
+#
 ### Instalación
-
- 
-
 Sigue estos pasos para instalar y configurar la aplicación Nest Learn:
 
+Clona este repositorio en tu máquina local.
+
+		git clone git@github.com:CesarCarvalhal/nest-learn-api.git
+    
+Navega hasta el directorio del proyecto e instala las dependencias.
+	
+		npm install
+	
+Configura las variables de entorno en un archivo `.env` con la siguiente información:
+
  
+ | Variable        | Detalles                                                                                          |
+|-----------------|------------------------------------------------------------------------------------------------------|
+| `URL`           | localhost/ |
+| `DBNAME`        | LearnDB    |
+| `SECRET_KEY`    | secret_key      |
+| `CLIENT_ID`     | (Identificador único de la aplicación cliente en Auth0)                                              |
+| `CLIENT_SECRET` | (Clave secreta utilizada para autenticar las solicitudes de la aplicación en Auth0)                  |
+| `AUDIENCE`      | (Audiencia para la cual se emite un token de acceso en Auth0)                                         |
+| `GRANT_TYPE`    | (Tipo de concesión utilizado en el proceso de autenticación y autorización con Auth0)                |
+| `OPENAI`        | (Clave o token de acceso para la API de OpenAI)  |
 
-1. Clona este repositorio en tu máquina local.
-2. Navega hasta el directorio del proyecto.
-3. Ejecuta el comando `npm install` para instalar las dependencias.
-4. Configura las variables de entorno en un archivo `.env` con la siguiente información:
-
- 
-
-- URL=
-- DBNAME=
-- SECRET_KEY=
-- CLIENT_ID=
-- CLIENT_SECRET=
-- AUDIENCE=
-- GRANT_TYPE=
-- OPENAI=
 
  
 
 Además, asegúrate de tener Docker instalado en tu sistema, y seguir los siguientes pasos.
 
  
+Descarga de la imagen de MongoDB:
 
-1. docker pull mongo
-2. docker run --name mongo-learn -p 27017:27017 -d mongo
-3. sudo docker ps
-4. sudo docker cp ruta_carpeta_mongo-api/. CONTAINER_ID:/data/db/
-5. sudo docker exec -it CONTAINER_ID mongorestore --db LearnDB /data/db/
-6. Inicia la aplicación ejecutando el comando `npm run start`.
-7. El swagger estará disponible en `http://localhost:3001/api`.
+		docker pull mongo
+		
+Crea un contenedor de MongoDB:
+
+		 docker run --name mongo-learn -p 27017:27017 -d mongo
+
+Verifica el estado del contenedor:
+
+		sudo docker ps
+		
+Copia la carpeta con los archivos de actividades y cursos a la carpeta del contenedor:
+
+		sudo docker cp ruta_carpeta_mongo-api/. CONTAINER_ID:/data/db/
+
+Restaura la base de datos:
+
+		sudo docker exec -it CONTAINER_ID mongorestore --db LearnDB /data/db/
+		
+Inicia la aplicación ejecutando el comando:
+
+		npm run start
+		
+El swagger estará disponible en `http://localhost:3001/api`.
 
  
 
-
+#
 ### Uso
-
- 
-
 La API Nest Learn ofrece los siguientes endpoints principales:
 
- 
 
 #### Usuarios
-
- 
-
 - `PATCH /users/update-nickname`: Actualizar nickname del usuario autenticado.
 - `GET /users/roles`: Obtener roles del usuario autenticado.
 
- 
 
 #### Actividades
-
- 
-
 - `GET /rest/activities`: Obtener todas las actividades.
 - `POST /rest/activities`: Crear actividad.
 - `GET /rest/activities/{id}`: Obtener actividad por ID.
@@ -111,12 +100,8 @@ La API Nest Learn ofrece los siguientes endpoints principales:
 - `POST /rest/activities/{id}/view`: Marcar actividad como vista.
 - `PATCH /rest/activities/answer/{id}`: Verificar la respuesta de un estudiante a la actividad.
 
- 
 
 #### Cursos
-
- 
-
 - `POST /rest/courses`: Crear curso.
 - `GET /rest/courses`: Obtener todos los cursos.
 - `POST /rest/courses/{courseId}/activities/{activityId}`: Añadir actividad a un curso.
